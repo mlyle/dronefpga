@@ -43,14 +43,16 @@ end entity;
 
 -- ----------------------------------------------------------------------------
 architecture RTL of wish_syncer is
-  signal write_sync  : std_logic;
-  signal strobe_sync : std_logic_vector(2 downto 0);
+  signal write_sync    : std_logic;
+  signal strobe_sync   : std_logic_vector(2 downto 0);
 
-  signal writing     : std_logic;
+  -- Clock enables for latches
+  signal ctrl_cken     : std_logic;
+  signal readdata_cken : std_logic;
 
-  -- Recirculating mux synchronized signals
-  signal address   : std_logic_vector(15 downto 0);
-  signal writedata : std_logic_vector(7 downto 0);
+  signal next_strobe   : std_logic;
+  signal writing       : std_logic;
+
 begin
   -- Provides an asynchronous interface to wishbone
 
@@ -61,30 +63,25 @@ begin
       write_sync  <= wbs_write;
 
       -- This is super slow & safe.
-
-      -- Rising edge on strobe
-      if strobe_sync(2) = '0' and strobe_sync(1) = '1' then
-        address   <= wbs_address;
-        writedata <= wbs_writedata;
-        -- From one cycle back behind edge, since we're not
-        -- guaranteed they arrived together.
-        writing    <= write_sync;
-        wbm_cycle  <= '1';
-        wbm_strobe <= '1';
-      elsif wbm_ack = '1' then
-        wbm_cycle  <= '0';
-        wbm_strobe <= '0';
-
-        if writing = '0' then
-          wbs_readdata <= wbm_readdata;
-        end if;
-
-        writing    <= '0';
+      if ctrl_cken = '1' then
+        wbm_strobe    <= next_strobe;
+        wbm_cycle     <= next_strobe;
+        wbm_address   <= wbs_address;
+        wbm_writedata <= wbs_writedata;
+        writing       <= write_sync and next_strobe;
       end if;
+
+      if readdata_cken = '1' then
+        wbs_readdata <= wbm_readdata;
+      end if;
+
     end if;
   end process;
 
-  wbm_address   <= address;
-  wbm_writedata <= writedata;
+  ctrl_cken     <= (strobe_sync(1) and (not strobe_sync(2))) or wbm_ack;
+  readdata_cken <= wbm_ack and not writing;
+
+  next_strobe   <= '0' when wbm_ack = '1' else '1';
   wbm_write     <= writing;
+
 end architecture RTL;

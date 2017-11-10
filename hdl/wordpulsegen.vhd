@@ -35,6 +35,7 @@ entity wordpulsegen is
     word_width        : in std_logic_vector(5 downto 0);  -- XXX
     word_value        : in std_logic_vector(max_word_width-1 downto 0);
                           -- (left justified when partial width)
+    wordb_value       : in std_logic_vector(max_word_width-1 downto 0) := (others => '0');
     word_req          : out std_logic;
     word_strobe       : in std_logic;
 
@@ -42,7 +43,8 @@ entity wordpulsegen is
     zero_duration     : in std_logic_vector(timer_width-1 downto 0);
     total_duration    : in std_logic_vector(timer_width-1 downto 0);
 
-    outpwm : out std_logic
+    outpwm            : out std_logic;
+    outpwmb           : out std_logic
   );
 end entity;
 
@@ -60,12 +62,14 @@ architecture RTL of wordpulsegen is
       clk : in std_logic;
       rst : in std_logic;
 
-      active_duration : in std_logic_vector(timer_width-1 downto 0);
-      total_duration  : in std_logic_vector(timer_width-1 downto 0);
-      duration_req    : out std_logic;
-      duration_strobe : in std_logic;
+      active_duration  : in std_logic_vector(timer_width-1 downto 0);
+      activeb_duration : in std_logic_vector(timer_width-1 downto 0) := (others => '0');
+      total_duration   : in std_logic_vector(timer_width-1 downto 0);
+      duration_req     : out std_logic;
+      duration_strobe  : in std_logic;
 
-      outpwm : out std_logic
+      outpwm  : out std_logic;
+      outpwmb : out std_logic
     );
   end component;
 
@@ -74,8 +78,10 @@ architecture RTL of wordpulsegen is
 
   signal remaining_width : unsigned(5 downto 0);
   signal remaining_word  : std_logic_vector(max_word_width-1 downto 0);
+  signal remaining_wordb : std_logic_vector(max_word_width-1 downto 0);
 
   signal bit_duration : std_logic_vector(timer_width-1 downto 0);
+  signal bitb_duration : std_logic_vector(timer_width-1 downto 0);
 begin
   process (clk)
   begin
@@ -88,11 +94,13 @@ begin
         if word_strobe = '1' then
           remaining_width <= unsigned(word_width);
           remaining_word  <= word_value;
+          remaining_wordb <= wordb_value;
           duration_strobe <= '0';
           word_req <= '0';
         elsif duration_req = '1' and duration_strobe = '0' and remaining_width > 0 then
           remaining_width <= remaining_width - 1;
           remaining_word  <= remaining_word(max_word_width-2 downto 0) & '0';
+          remaining_wordb <= remaining_word(max_word_width-2 downto 0) & '0';
           duration_strobe <= '1';
           word_req <= '0';
         elsif remaining_width = 0 then
@@ -108,22 +116,27 @@ begin
 
   bit_duration <= one_duration when remaining_word(max_word_width-1) = '1'
                   else zero_duration;
-                  
+
+  bitb_duration <= one_duration when remaining_wordb(max_word_width-1) = '1'
+                  else zero_duration;
+
   pulse_gen : pulsegen
     generic map(
       timer_width => timer_width,
       active_output => active_output,
       inactive_output => inactive_output
     )
-    
+
     port map(
       clk => clk,
       rst => rst,
       active_duration => bit_duration,
+      activeb_duration => bitb_duration,
       total_duration => total_duration,
       duration_req => duration_req,
       duration_strobe => duration_strobe,
-      outpwm => outpwm
+      outpwm => outpwm,
+      outpwmb => outpwmb
     );
 
 end architecture RTL;

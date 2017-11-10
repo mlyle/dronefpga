@@ -58,7 +58,9 @@ architecture behavior of tb_spiwish is
       wbs_readdata  : out std_logic_vector(7 downto 0);
       wbs_write     : in std_logic;
       wbs_strobe    : in std_logic;
-      wbs_ack       : out std_logic
+      wbs_ack       : out std_logic;
+
+      outpwm        : out std_logic
     );
   end component;
 
@@ -68,6 +70,7 @@ architecture behavior of tb_spiwish is
   signal ss : std_logic := '1';
   signal mosi : std_logic := '0';
   signal miso : std_logic;
+  signal outpwm : std_logic;
 
   signal addr : std_logic_vector(15 downto 0);
   signal wdata : std_logic_vector(7 downto 0);
@@ -110,7 +113,8 @@ begin
                               wbs_readdata => rdata,
                               wbs_write => write,
                               wbs_strobe => strobe,
-                              wbs_ack => ack
+                              wbs_ack => ack,
+                              outpwm => outpwm
                             );
 
 

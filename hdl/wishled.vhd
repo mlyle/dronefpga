@@ -29,8 +29,6 @@ architecture RTL of wish_2812led is
   signal acking : std_logic;
   signal do_wish_write : std_logic;
 
-  -- Bit time, 1.25us.  At 96MHz, 120 counts.
-  -- 39 counts high for '0', 77 counts high for '1'
   signal num_bytes : unsigned(7 downto 0);
 
   signal read_next_byte : std_logic;
@@ -61,6 +59,7 @@ architecture RTL of wish_2812led is
       word_width        : in std_logic_vector(5 downto 0);  -- XXX
       word_value        : in std_logic_vector(max_word_width-1 downto 0);
                             -- (left justified when partial width)
+      wordb_value       : in std_logic_vector(max_word_width-1 downto 0) := (others => '0');
       word_req          : out std_logic;
       word_strobe       : in std_logic;
 
@@ -68,7 +67,8 @@ architecture RTL of wish_2812led is
       zero_duration     : in std_logic_vector(timer_width-1 downto 0);
       total_duration    : in std_logic_vector(timer_width-1 downto 0);
 
-      outpwm : out std_logic
+      outpwm            : out std_logic;
+      outpwmb           : out std_logic
     );
   end component;
 begin
@@ -143,9 +143,12 @@ begin
       word_value => to_clock_out,
       word_req => word_req,
       word_strobe => word_strobe,
+      -- Bit time, 1.25us.  At 96MHz, 120 counts.
+      -- 37 counts high for '0', 77 counts high for '1'
       one_duration => std_logic_vector(to_unsigned(77, 7)),
-      zero_duration => std_logic_vector(to_unsigned(38, 7)),
+      zero_duration => std_logic_vector(to_unsigned(37, 7)),
       total_duration => std_logic_vector(to_unsigned(120, 7)),
-      outpwm => outpwm
+      outpwm => outpwm,
+      outpwmb => open
     );
 end architecture RTL;

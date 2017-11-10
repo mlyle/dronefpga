@@ -31,12 +31,14 @@ entity pulsegen is
     clk : in std_logic;
     rst : in std_logic;
 
-    active_duration : in std_logic_vector(timer_width-1 downto 0);
-    total_duration  : in std_logic_vector(timer_width-1 downto 0);
-    duration_req    : out std_logic;
-    duration_strobe : in std_logic;
+    active_duration  : in std_logic_vector(timer_width-1 downto 0);
+    activeb_duration : in std_logic_vector(timer_width-1 downto 0) := (others => '0');
+    total_duration   : in std_logic_vector(timer_width-1 downto 0);
+    duration_req     : out std_logic;
+    duration_strobe  : in std_logic;
 
-    outpwm : out std_logic
+    outpwm  : out std_logic;
+    outpwmb : out std_logic
   );
 end entity;
 
@@ -64,6 +66,12 @@ begin
         outpwm <= active_output;
       else
         outpwm <= inactive_output;
+      end if;
+
+      if counter < unsigned(activeb_duration) then
+        outpwmb <= active_output;
+      else
+        outpwmb <= inactive_output;
       end if;
     end if;
   end process;

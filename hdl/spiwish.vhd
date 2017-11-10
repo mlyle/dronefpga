@@ -98,7 +98,7 @@ begin
   -- value).  Also, we'll end up reading ahead one byte past the end of
   -- the transaction.
 
-  process (sck, ss)
+  process (sck, ss, status_word)
   variable bits : unsigned(2 downto 0);
   begin
     if ss = '1' then

@@ -14,7 +14,9 @@ entity wish_2812led is
     wbs_readdata  : out std_logic_vector(7 downto 0);
     wbs_write     : in std_logic;
     wbs_strobe    : in std_logic;
-    wbs_ack       : out std_logic
+    wbs_ack       : out std_logic;
+
+    outpwm        : out std_logic
   );
 end entity;
 
@@ -24,10 +26,6 @@ architecture RTL of wish_2812led is
 
   signal mem : mem_type;
 
-  signal mem_out : std_logic_vector(7 downto 0);
- 
-  signal ck_div : unsigned(4 downto 0);
-  signal next_ck_div : unsigned(4 downto 0);
   signal acking : std_logic;
   signal do_wish_write : std_logic;
 
@@ -44,6 +42,35 @@ architecture RTL of wish_2812led is
 
   signal to_clock_out : std_logic_vector(7 downto 0);
 
+  signal word_req : std_logic;
+  signal word_strobe : std_logic;
+
+  component wordpulsegen is
+    generic (
+      timer_width     : integer;
+      active_output   : std_logic;
+      inactive_output : std_logic;
+      max_word_width  : integer
+    );
+
+    port (
+      -- Overall system clock
+      clk : in std_logic;
+      rst : in std_logic;
+
+      word_width        : in std_logic_vector(5 downto 0);  -- XXX
+      word_value        : in std_logic_vector(max_word_width-1 downto 0);
+                            -- (left justified when partial width)
+      word_req          : out std_logic;
+      word_strobe       : in std_logic;
+
+      one_duration      : in std_logic_vector(timer_width-1 downto 0);
+      zero_duration     : in std_logic_vector(timer_width-1 downto 0);
+      total_duration    : in std_logic_vector(timer_width-1 downto 0);
+
+      outpwm : out std_logic
+    );
+  end component;
 begin
 
   process (clk)
@@ -51,24 +78,21 @@ begin
     if clk'EVENT and clk = '1' then
       if rst = '1' then
         num_bytes <= (others => '0');
-        ck_div <= (others => '0');
         next_byte <= (others => '0');
         read_in_prog <= '0';
 
-        --for i in mem'low to mem'high loop
-        --  mem(i) <= std_logic_vector(to_unsigned(i, 8));
-        --end loop;
+        for i in mem'low to mem'high loop
+          --mem(i) <= std_logic_vector(to_unsigned(i, 8));
+        end loop;
       else
-        ck_div <= next_ck_div;
         read_in_prog <= read_next_byte;
 
         if read_in_prog = '1' then
-          to_clock_out <= mem_rdata;
+          next_byte <= next_byte + 1;
         end if;
 
-        if read_next_byte = '1' then
+        if word_req = '1' then
           acking <= '0';
-          next_byte <= next_byte + 1;
         elsif wbs_strobe = '1' then
           acking <= '1';
 
@@ -94,11 +118,34 @@ begin
   mem_waddr <= unsigned(wbs_address);
 
   wbs_ack <= wbs_strobe and acking;
-  next_ck_div <= ck_div + 1;
+
+  read_next_byte <= '1' when (word_req = '1') and (read_in_prog = '0') else '0';
 
   do_wish_write <= '1' when ((wbs_strobe = '1') and (wbs_write = '1') and (read_next_byte = '0') and (rst = '0')) else '0';
-  read_next_byte <= '1' when ck_div = 0 else '0';
   mem_raddr <= next_byte when read_next_byte = '1' else unsigned(wbs_address);
   wbs_readdata <= mem_rdata;
+  to_clock_out <= mem_rdata;
 
+  word_strobe <= read_in_prog;
+
+  pulse_generator : wordpulsegen
+    generic map (
+      timer_width => 7,
+      active_output => '1',
+      inactive_output => '0',
+      max_word_width => 8
+    )
+
+    port map (
+      clk => clk,
+      rst => rst,
+      word_width => "001000",
+      word_value => to_clock_out,
+      word_req => word_req,
+      word_strobe => word_strobe,
+      one_duration => std_logic_vector(to_unsigned(77, 7)),
+      zero_duration => std_logic_vector(to_unsigned(38, 7)),
+      total_duration => std_logic_vector(to_unsigned(120, 7)),
+      outpwm => outpwm
+    );
 end architecture RTL;

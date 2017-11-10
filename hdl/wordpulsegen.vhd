@@ -69,14 +69,11 @@ architecture RTL of wordpulsegen is
     );
   end component;
 
-  signal counter : unsigned(timer_width downto 0);
-  signal top_of_count : std_logic;
-
   signal duration_strobe : std_logic;
   signal duration_req : std_logic;
 
   signal remaining_width : unsigned(5 downto 0);
-  signal remaining_word  : std_logic_vector(timer_width-1 downto 0);
+  signal remaining_word  : std_logic_vector(max_word_width-1 downto 0);
 
   signal bit_duration : std_logic_vector(timer_width-1 downto 0);
 begin
@@ -85,20 +82,30 @@ begin
     if clk'EVENT and clk = '1' then
       if rst = '1' then
         remaining_width <= (others => '0');
+        duration_strobe <= '0';
+        word_req <= '0';
       else
         if word_strobe = '1' then
           remaining_width <= unsigned(word_width);
           remaining_word  <= word_value;
-        elsif duration_req = '1' and remaining_width > 0 then
+          duration_strobe <= '0';
+          word_req <= '0';
+        elsif duration_req = '1' and duration_strobe = '0' and remaining_width > 0 then
           remaining_width <= remaining_width - 1;
           remaining_word  <= remaining_word(max_word_width-2 downto 0) & '0';
+          duration_strobe <= '1';
+          word_req <= '0';
+        elsif remaining_width = 0 then
+          duration_strobe <= '0';
+          word_req <= '1';
+        else
+          duration_strobe <= '0';
+          word_req <= '0';
         end if;
       end if;
     end if;
   end process;
 
-  top_of_count <= '1' when counter >= unsigned(total_duration) else '0';
-  duration_req <= top_of_count;
   bit_duration <= one_duration when remaining_word(max_word_width-1) = '1'
                   else zero_duration;
                   

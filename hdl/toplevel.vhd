@@ -61,7 +61,9 @@ architecture RTL of tinyfpga is
       wbs_readdata  : out std_logic_vector(7 downto 0);
       wbs_write     : in std_logic;
       wbs_strobe    : in std_logic;
-      wbs_ack       : out std_logic
+      wbs_ack       : out std_logic;
+
+      outpwm        : out std_logic
     );
   end component;
 
@@ -76,6 +78,7 @@ architecture RTL of tinyfpga is
   signal rst                 : std_logic;
 
   signal miso, mosi, sck, ss : std_logic;
+  signal outpwm : std_logic;
 
 begin
   bridge : spi_wishmaster
@@ -103,7 +106,8 @@ begin
                               wbs_readdata => rdata,
                               wbs_write => write,
                               wbs_strobe => strobe,
-                              wbs_ack => ack
+                              wbs_ack => ack,
+                              outpwm => outpwm
                             );
 
   clk         <= pin3_clk_16mhz;
@@ -112,6 +116,7 @@ begin
   pin14_sdo   <= miso;
   sck         <= pin16_sck;
   ss          <= pin17_ss;
+  pin5        <= outpwm;
 
   pin1_usb_dp <= 'Z';
   pin2_usb_dn <= 'Z';

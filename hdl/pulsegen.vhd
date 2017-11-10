@@ -49,7 +49,7 @@ begin
   begin
     if clk'EVENT and clk = '1' then
       if rst = '1' then
-        counter <= (others => '0');
+        counter <= (others => '1');
       else
         if top_of_count = '1' then
           if duration_strobe = '1' then

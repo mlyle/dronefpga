@@ -19,6 +19,7 @@ architecture behavior of tb_toplevel is
   signal ss : std_logic := '1';
   signal mosi : std_logic := '0';
   signal miso : std_logic;
+  signal outpwm : std_logic;
 
   -- define the period of clock here.
   constant SPI_PERIOD : time := 100 ns; -- 10MHz
@@ -33,7 +34,9 @@ begin
                                   pin17_ss => ss,
                                   pin15_sdi => mosi,
                                   pin14_sdo => miso,
-                                  pin3_clk_16mhz => clk
+                                  pin3_clk_16mhz => clk,
+                                  pin4 => rst,
+                                  pin5 => outpwm
                                 );
 
   -- Clock processes
@@ -88,11 +91,24 @@ begin
     wait for SPI_PERIOD*12;
     mosi <= '1';
 
-    wait for SPI_PERIOD*52; --wait for 64 clock cycles.
+    wait for SPI_PERIOD*500; --wait for 512 clock cycles.
 
     ss <= '1';
 
-    wait for SPI_PERIOD*2; --wait a lil more
+    wait for SPI_PERIOD*1;
+
+    mosi <= '0';
+    ss <= '0';
+
+    wait for SPI_PERIOD*12;
+
+    mosi <= '1';
+
+    wait for SPI_PERIOD*100; --wait for 112 clock cycles.
+
+    ss <= '1';
+
+    wait for SPI_PERIOD*2;
 
     ENDSIM := true;
 

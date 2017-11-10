@@ -166,7 +166,7 @@ begin
     wait for SPI_PERIOD*12;
     mosi <= '1';
 
-    wait for SPI_PERIOD*116; --wait for 128 clock cycles.
+    wait for SPI_PERIOD*500; --wait for 512 clock cycles.
 
     ss <= '1';
 

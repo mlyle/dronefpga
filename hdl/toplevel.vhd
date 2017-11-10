@@ -26,8 +26,12 @@ architecture RTL of tinyfpga is
       wbm_strobe    : out std_logic;
       wbm_write     : out std_logic;
       wbm_ack       : in std_logic;
-      wbm_cycle     : out std_logic
+      wbm_cycle     : out std_logic;
+
+      -- Status word to return at beginning of transaction
+      status_word   : in std_logic_vector(15 downto 0)
     );
+
   end component;
 
   component dumb_bone is
@@ -45,6 +49,22 @@ architecture RTL of tinyfpga is
     );
   end component;
 
+  component wish_2812led is
+    port (
+      -- Overall system clock
+      clk : in std_logic;
+      rst : in std_logic;
+
+      -- Wishbone interface signals
+      wbs_address   : in std_logic_vector(8 downto 0);
+      wbs_writedata : in std_logic_vector(7 downto 0);
+      wbs_readdata  : out std_logic_vector(7 downto 0);
+      wbs_write     : in std_logic;
+      wbs_strobe    : in std_logic;
+      wbs_ack       : out std_logic
+    );
+  end component;
+
   signal addr                : std_logic_vector(15 downto 0);
   signal wdata               : std_logic_vector(7 downto 0);
   signal rdata               : std_logic_vector(7 downto 0);
@@ -53,6 +73,7 @@ architecture RTL of tinyfpga is
   signal ack                 : std_logic;
   signal cycle               : std_logic;
   signal clk                 : std_logic;
+  signal rst                 : std_logic;
 
   signal miso, mosi, sck, ss : std_logic;
 
@@ -70,22 +91,23 @@ begin
     wbm_strobe    => strobe,
     wbm_write     => write,
     wbm_ack       => ack,
-    wbm_cycle     => cycle
+    wbm_cycle     => cycle,
+    status_word   => "1100110011100101"
   );
 
-  -- and our example slave
-  slave : dumb_bone
-  port map(
-    clk           => clk,
-    wbs_address   => addr,
-    wbs_writedata => wdata,
-    wbs_readdata  => rdata,
-    wbs_write     => write,
-    wbs_strobe    => strobe,
-    wbs_ack       => ack
-  );
+  slave : wish_2812led port map (
+                              clk => clk,
+                              rst => rst,
+                              wbs_address => addr(8 downto 0),
+                              wbs_writedata => wdata,
+                              wbs_readdata => rdata,
+                              wbs_write => write,
+                              wbs_strobe => strobe,
+                              wbs_ack => ack
+                            );
 
   clk         <= pin3_clk_16mhz;
+  rst         <= pin4;
   mosi        <= pin15_sdi;
   pin14_sdo   <= miso;
   sck         <= pin16_sck;

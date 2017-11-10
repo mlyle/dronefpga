@@ -20,7 +20,7 @@ use IEEE.numeric_std.all;
 
 entity spi_wishmaster is
   port (
-    -- SPI SIGNALS
+    -- SPI signals
     mosi, ss, sck : in std_logic;
     miso          : out std_logic;
 
@@ -33,7 +33,10 @@ entity spi_wishmaster is
     wbm_strobe    : out std_logic;
     wbm_write     : out std_logic;
     wbm_ack       : in std_logic;
-    wbm_cycle     : out std_logic
+    wbm_cycle     : out std_logic;
+
+    -- Status word to return at beginning of transaction
+    status_word   : in std_logic_vector(15 downto 0)
   );
 end entity;
 
@@ -75,8 +78,6 @@ architecture RTL of spi_wishmaster is
   signal auto_inc      : std_logic;
   signal writing       : std_logic;
 
-  signal status_byte   : std_logic_vector(7 downto 0);
-
   signal awb_address   : std_logic_vector(15 downto 0);
   signal awb_writedata : std_logic_vector(7 downto 0);
   signal awb_readdata  : std_logic_vector(7 downto 0);
@@ -105,7 +106,8 @@ begin
       -- back to default state
       bus_state   <= ST_ADDRHI;
       bit_count   <= (others => '0');
-      data_out_sr <= (others => '0');
+      -- Status word is sampled asynchronously
+      data_out_sr <= status_word(15 downto 8);
     elsif sck'EVENT and sck = '1' then
       bits := unsigned(bit_count);
 
@@ -121,7 +123,7 @@ begin
             rd_address(15 downto 14) <= (others => '0');
             rd_address(13 downto 6)  <= data_in_sr;
 
-            data_out_sr              <= status_byte;
+            data_out_sr              <= status_word(7 downto 0);
           end if;
 
         when ST_ADDRLO =>
@@ -170,9 +172,8 @@ begin
               awb_writedata <= data_in_sr;
               awb_strobe    <= '1';
               awb_write     <= '1';
-            end if;
           end if;
-
+        end if;
       end case;
 
       if (bits /= 7) then
@@ -201,10 +202,7 @@ begin
     wbm_cycle     => wbm_cycle
     );
 
-    miso          <= data_out_sr(7) when ss = '0' else 'Z';
+  miso          <= data_out_sr(7) when ss = '0' else 'Z';
 
-    data_in_sr(0) <= mosi;
-
-    -- TODO: expose in module, synchronize
-    status_byte   <= "10100011";
+  data_in_sr(0) <= mosi;
 end architecture RTL;

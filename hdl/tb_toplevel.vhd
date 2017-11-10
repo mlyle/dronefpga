@@ -15,7 +15,7 @@ architecture behavior of tb_toplevel is
 
   signal clk : std_logic := '0';
   signal sck : std_logic := '0';
-  signal reset : std_logic := '0';
+  signal rst : std_logic := '0';
   signal ss : std_logic := '1';
   signal mosi : std_logic := '0';
   signal miso : std_logic;
@@ -64,7 +64,17 @@ begin
   -- Stimulus process, Apply inputs here.
   stim_proc: process
   begin
-    wait for SPI_PERIOD*10; --wait for 10 clock cycles.
+    wait for CLK_PERIOD*5;
+
+    rst <= '1';
+
+    wait for CLK_PERIOD*5;
+
+    rst <= '0';
+
+    wait until sck='0';
+
+    wait for SPI_PERIOD*2; --wait for 2 clock cycles.
     ss <= '0';
 
     wait for SPI_PERIOD*32; --wait for 32 clock cycles.

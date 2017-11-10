@@ -23,7 +23,10 @@ architecture behavior of tb_spiwish is
     wbm_strobe     : out std_logic;
     wbm_write      : out std_logic;
     wbm_ack        : in std_logic;
-    wbm_cycle      : out std_logic
+    wbm_cycle      : out std_logic;
+
+    -- Status word to return at beginning of transaction
+    status_word   : in std_logic_vector(15 downto 0)
   );
   end component;
 
@@ -43,9 +46,25 @@ architecture behavior of tb_spiwish is
     );
   end component;
 
+  component wish_2812led is
+    port (
+      -- Overall system clock
+      clk : in std_logic;
+      rst : in std_logic;
+
+      -- Wishbone interface signals
+      wbs_address   : in std_logic_vector(8 downto 0);
+      wbs_writedata : in std_logic_vector(7 downto 0);
+      wbs_readdata  : out std_logic_vector(7 downto 0);
+      wbs_write     : in std_logic;
+      wbs_strobe    : in std_logic;
+      wbs_ack       : out std_logic
+    );
+  end component;
+
   signal clk : std_logic := '0';
   signal sck : std_logic := '0';
-  signal reset : std_logic := '0';
+  signal rst : std_logic := '0';
   signal ss : std_logic := '1';
   signal mosi : std_logic := '0';
   signal miso : std_logic;
@@ -78,13 +97,15 @@ begin
                                   wbm_strobe => strobe,
                                   wbm_write => write,
                                   wbm_ack => ack,
-                                  wbm_cycle => cycle
+                                  wbm_cycle => cycle,
+                                  status_word => "1100110011100101"
                                 );
 
   -- and our example slave
-  slave : dumb_bone port map (
+  slave : wish_2812led port map (
                               clk => clk,
-                              wbs_address => addr,
+                              rst => rst,
+                              wbs_address => addr(8 downto 0),
                               wbs_writedata => wdata,
                               wbs_readdata => rdata,
                               wbs_write => write,
@@ -121,7 +142,17 @@ begin
   -- Stimulus process, Apply inputs here.
   stim_proc: process
   begin
-    wait for SPI_PERIOD*10; --wait for 10 clock cycles.
+    wait for CLK_PERIOD*5;
+
+    rst <= '1';
+
+    wait for CLK_PERIOD*5;
+
+    rst <= '0';
+
+    wait until sck='0';
+
+    wait for SPI_PERIOD*2; --wait for 2 clock cycles.
     ss <= '0';
 
     wait for SPI_PERIOD*32; --wait for 32 clock cycles.
@@ -135,7 +166,7 @@ begin
     wait for SPI_PERIOD*12;
     mosi <= '1';
 
-    wait for SPI_PERIOD*52; --wait for 64 clock cycles.
+    wait for SPI_PERIOD*116; --wait for 128 clock cycles.
 
     ss <= '1';
 

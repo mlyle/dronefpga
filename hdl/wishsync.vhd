@@ -59,6 +59,7 @@ begin
   process (clk)
   begin
     if clk'EVENT and clk = '1' then
+      -- Synchronizer FFs capture on the system clock
       strobe_sync <= strobe_sync(1 downto 0) & wbs_strobe;
       write_sync  <= wbs_write;
 
@@ -83,5 +84,4 @@ begin
 
   next_strobe   <= '0' when wbm_ack = '1' else '1';
   wbm_write     <= writing;
-
 end architecture RTL;

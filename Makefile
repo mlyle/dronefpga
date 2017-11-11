@@ -1,8 +1,8 @@
 sim:
 	mkdir -p work
 	ghdl -a --workdir=work hdl/*.vhd
-	ghdl -e --workdir=work tb_spiwish
-	ghdl -r tb_spiwish --vcd=tb_spiwish.vcd --disp-tree
+	ghdl -e --workdir=work tb_toplevel
+	ghdl -r tb_toplevel --vcd=tb_spiwish.vcd --disp-tree
 
 view: sim
 	gtkwave -z tb_spiwish.vcd

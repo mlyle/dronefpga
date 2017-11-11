@@ -118,4 +118,26 @@ package dronefpga_components is
     status_word   : in std_logic_vector(15 downto 0)
   );
   end component;
+
+-----
+
+  constant DATA_WIDTH : integer := 8;
+  constant ADDR_WIDTH : integer := 16;
+  type array_of_addr is array(NATURAL range <>) of
+          std_logic_vector(ADDR_WIDTH-1 downto 0);
+  type array_of_data is array(NATURAL range <>) of
+          std_logic_vector(DATA_WIDTH-1 downto 0);
+  function find_X(slv : std_logic_vector) return natural;
+end dronefpga_components;
+
+package body dronefpga_components is
+  function find_X(slv : std_logic_vector) return natural is
+	begin
+	  for i in slv'range loop
+		  if slv(i) ='X' then
+			  return i+1 ;
+		  end if;
+	  end loop;
+    return 0;
+  end function find_X;
 end dronefpga_components;

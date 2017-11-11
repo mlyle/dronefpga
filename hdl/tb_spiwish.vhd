@@ -1,69 +1,12 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.dronefpga_components.all;
 
 entity tb_spiwish is
-  end tb_spiwish;
+end tb_spiwish;
 
 architecture behavior of tb_spiwish is
-  component spi_wishmaster is
-    port
-    (
-    -- SPI SIGNALS
-    mosi, ss, sck : in std_logic;
-    miso : out std_logic;
-
-    -- Global Signals
-    clk            : in std_logic;
-
-    -- Wishbone interface signals
-    wbm_address    : out std_logic_vector(15 downto 0);
-    wbm_readdata   : in  std_logic_vector(7 downto 0);
-    wbm_writedata  : out std_logic_vector(7 downto 0);
-    wbm_strobe     : out std_logic;
-    wbm_write      : out std_logic;
-    wbm_ack        : in std_logic;
-    wbm_cycle      : out std_logic;
-
-    -- Status word to return at beginning of transaction
-    status_word   : in std_logic_vector(15 downto 0)
-  );
-  end component;
-
-  component dumb_bone is
-    port
-    (
-      -- Overall system clock
-      clk : in std_logic;
-
-      -- Wishbone interface signals
-      wbs_address    : in std_logic_vector(15 downto 0);
-      wbs_writedata  : in std_logic_vector(7 downto 0);
-      wbs_readdata   : out  std_logic_vector(7 downto 0);
-      wbs_write      : in std_logic;
-      wbs_strobe     : in std_logic;
-      wbs_ack        : out std_logic
-    );
-  end component;
-
-  component wish_2812led is
-    port (
-      -- Overall system clock
-      clk : in std_logic;
-      rst : in std_logic;
-
-      -- Wishbone interface signals
-      wbs_address   : in std_logic_vector(8 downto 0);
-      wbs_writedata : in std_logic_vector(7 downto 0);
-      wbs_readdata  : out std_logic_vector(7 downto 0);
-      wbs_write     : in std_logic;
-      wbs_strobe    : in std_logic;
-      wbs_ack       : out std_logic;
-
-      outpwm        : out std_logic
-    );
-  end component;
-
   signal clk : std_logic := '0';
   signal sck : std_logic := '0';
   signal rst : std_logic := '0';

@@ -17,6 +17,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.dronefpga_components.all;
 
 entity spi_wishmaster is
   port (
@@ -41,29 +42,6 @@ entity spi_wishmaster is
 end entity;
 
 architecture RTL of spi_wishmaster is
-  component wish_syncer is
-    port (
-      -- Overall system clock
-      clk : in std_logic;
-
-      -- Pseudo-wishbone async slave signals
-      wbs_address   : in std_logic_vector(15 downto 0);
-      wbs_writedata : in std_logic_vector(7 downto 0);
-      wbs_readdata  : out std_logic_vector(7 downto 0);
-      wbs_write     : in std_logic;
-      wbs_strobe    : in std_logic;
-
-      -- Wishbone interface signals
-      wbm_address   : out std_logic_vector(15 downto 0);
-      wbm_writedata : out std_logic_vector(7 downto 0);
-      wbm_readdata  : in std_logic_vector(7 downto 0);
-      wbm_write     : out std_logic;
-      wbm_strobe    : out std_logic;
-      wbm_ack       : in std_logic;
-      wbm_cycle     : out std_logic
-    );
-  end component;
-
   type spi_txn_state is (ST_ADDRHI, ST_ADDRLO, ST_DATA);
 
   signal bit_count     : std_logic_vector(2 downto 0);

@@ -18,6 +18,7 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 use IEEE.math_real.all;
+use work.dronefpga_components.all;
 
 entity wordpulsegen is
   generic (
@@ -50,29 +51,6 @@ end entity;
 
 -- ----------------------------------------------------------------------------
 architecture RTL of wordpulsegen is
-  component pulsegen is
-    generic (
-      timer_width     : integer;
-      active_output   : std_logic;
-      inactive_output : std_logic
-    );
-
-    port (
-      -- Overall system clock
-      clk : in std_logic;
-      rst : in std_logic;
-
-      active_duration  : in std_logic_vector(timer_width-1 downto 0);
-      activeb_duration : in std_logic_vector(timer_width-1 downto 0) := (others => '0');
-      total_duration   : in std_logic_vector(timer_width-1 downto 0);
-      duration_req     : out std_logic;
-      duration_strobe  : in std_logic;
-
-      outpwm  : out std_logic;
-      outpwmb : out std_logic
-    );
-  end component;
-
   signal duration_strobe : std_logic;
   signal duration_req : std_logic;
 

@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use work.dronefpga_components.all;
 
 entity wish_2812led is
   port (
@@ -29,7 +30,7 @@ architecture RTL of wish_2812led is
   signal acking : std_logic;
   signal do_wish_write : std_logic;
 
-  signal num_bytes : unsigned(7 downto 0);
+  signal num_bytes : unsigned(8 downto 0);
 
   signal read_next_byte : std_logic;
   signal read_in_prog : std_logic;
@@ -42,35 +43,6 @@ architecture RTL of wish_2812led is
 
   signal word_req : std_logic;
   signal word_strobe : std_logic;
-
-  component wordpulsegen is
-    generic (
-      timer_width     : integer;
-      active_output   : std_logic;
-      inactive_output : std_logic;
-      max_word_width  : integer
-    );
-
-    port (
-      -- Overall system clock
-      clk : in std_logic;
-      rst : in std_logic;
-
-      word_width        : in std_logic_vector(5 downto 0);  -- XXX
-      word_value        : in std_logic_vector(max_word_width-1 downto 0);
-                            -- (left justified when partial width)
-      wordb_value       : in std_logic_vector(max_word_width-1 downto 0) := (others => '0');
-      word_req          : out std_logic;
-      word_strobe       : in std_logic;
-
-      one_duration      : in std_logic_vector(timer_width-1 downto 0);
-      zero_duration     : in std_logic_vector(timer_width-1 downto 0);
-      total_duration    : in std_logic_vector(timer_width-1 downto 0);
-
-      outpwm            : out std_logic;
-      outpwmb           : out std_logic
-    );
-  end component;
 begin
 
   process (clk)
@@ -98,7 +70,7 @@ begin
 
           if wbs_write = '1' then
             if (mem_waddr = 0) then
-              num_bytes <= unsigned(wbs_writedata); -- * 3
+              num_bytes <= unsigned('0' & wbs_writedata) + unsigned('0' & wbs_writedata) + unsigned('0' & wbs_writedata);
             end if;
 
           end if;

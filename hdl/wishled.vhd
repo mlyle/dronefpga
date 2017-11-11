@@ -52,9 +52,11 @@ begin
         next_byte <= (others => '0');
         read_in_prog <= '0';
 
+        -- synopsys translate_off
         for i in mem'low to mem'high loop
-          --mem(i) <= std_logic_vector(to_unsigned(i, 8));
+          mem(i) <= std_logic_vector(to_unsigned(i, 8));
         end loop;
+        -- synopsys translate_on
       else
         read_in_prog <= read_next_byte;
 

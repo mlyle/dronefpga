@@ -11,6 +11,7 @@ entity tinyfpga is
 end entity;
 
 architecture RTL of tinyfpga is
+  constant max_periphidx     : integer := 3;
   signal addr                : std_logic_vector(15 downto 0);
   signal wdata               : std_logic_vector(7 downto 0);
   signal rdata               : std_logic_vector(7 downto 0);
@@ -21,16 +22,16 @@ architecture RTL of tinyfpga is
   signal clk                 : std_logic;
   signal rst                 : std_logic;
 
-  signal periph_addrs        : array_of_addr(0 downto 0);
-  signal periph_wdata        : array_of_data(0 downto 0);
-  signal periph_rdata        : array_of_data(0 downto 0);
-  signal periph_strobe       : std_logic_vector(0 downto 0);
-  signal periph_cycle        : std_logic_vector(0 downto 0);
-  signal periph_write        : std_logic_vector(0 downto 0);
-  signal periph_ack          : std_logic_vector(0 downto 0);
+  signal periph_addrs        : array_of_addr(max_periphidx downto 0);
+  signal periph_wdata        : array_of_data(max_periphidx downto 0);
+  signal periph_rdata        : array_of_data(max_periphidx downto 0);
+  signal periph_strobe       : std_logic_vector(max_periphidx downto 0);
+  signal periph_cycle        : std_logic_vector(max_periphidx downto 0);
+  signal periph_write        : std_logic_vector(max_periphidx downto 0);
+  signal periph_ack          : std_logic_vector(max_periphidx downto 0);
 
   signal miso, mosi, sck, ss : std_logic;
-  signal outpwm : std_logic;
+  signal outpwm              : std_logic_vector(max_periphidx downto 0);
 
 begin
   bridge : spi_wishmaster
@@ -53,7 +54,10 @@ begin
   intercon : wishbone_intercon
   generic map (
     memory_map => (
-                    0 => "0000000XXXXXXXXX" -- wish_2812led
+                    0 => "0000000XXXXXXXXX", -- wish_2812led
+                    1 => "0000001XXXXXXXXX", -- wish_2812led2
+                    2 => "0000010XXXXXXXXX", -- wish_2812led3
+                    3 => "0000011XXXXXXXXX"  -- wish_2812led4
     )
   )
   port map (
@@ -76,17 +80,20 @@ begin
     wbm_ack        => periph_ack
   );
 
-  slave : wish_2812led port map (
-                              clk => clk,
-                              rst => rst,
-                              wbs_address => periph_addrs(0)(8 downto 0),
-                              wbs_writedata => periph_wdata(0),
-                              wbs_readdata => periph_rdata(0),
-                              wbs_write => periph_write(0),
-                              wbs_strobe => periph_strobe(0),
-                              wbs_ack => periph_ack(0),
-                              outpwm => outpwm
-                            );
+  slaves : for i in 0 to max_periphidx generate
+  begin
+    slave : wish_2812led port map (
+                                clk => clk,
+                                rst => rst,
+                                wbs_address => periph_addrs(i)(8 downto 0),
+                                wbs_writedata => periph_wdata(i),
+                                wbs_readdata => periph_rdata(i),
+                                wbs_write => periph_write(i),
+                                wbs_strobe => periph_strobe(i),
+                                wbs_ack => periph_ack(i),
+                                outpwm => outpwm(i)
+                              );
+  end generate;
 
   clk         <= pin3_clk_16mhz;
   rst         <= pin4;
@@ -94,7 +101,10 @@ begin
   pin14_sdo   <= miso;
   sck         <= pin16_sck;
   ss          <= pin17_ss;
-  pin5        <= outpwm;
+  pin5        <= outpwm(0);
+  pin6        <= outpwm(1);
+  pin7        <= outpwm(2);
+  pin8        <= outpwm(3);
 
   pin1_usb_dp <= 'Z';
   pin2_usb_dn <= 'Z';

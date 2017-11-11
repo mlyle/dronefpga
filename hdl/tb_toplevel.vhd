@@ -88,7 +88,12 @@ begin
 
     ss <= '0';
 
-    wait for SPI_PERIOD*12;
+    -- **000100 00000011 autoincrement write
+    wait for SPI_PERIOD*3;
+    mosi <= '1';
+    wait for SPI_PERIOD;
+    mosi <= '0';
+    wait for SPI_PERIOD*8;
     mosi <= '1';
 
     wait for SPI_PERIOD*500; --wait for 512 clock cycles.

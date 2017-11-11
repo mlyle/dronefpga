@@ -128,6 +128,34 @@ package dronefpga_components is
   type array_of_data is array(NATURAL range <>) of
           std_logic_vector(DATA_WIDTH-1 downto 0);
   function find_X(slv : std_logic_vector) return natural;
+
+  component wishbone_intercon is
+    generic(memory_map : array_of_addr );
+    port(
+        -- Syscon signals
+        gls_reset    : in std_logic ;
+        gls_clk      : in std_logic ;
+
+        -- Wishbone slave signals
+        wbs_address       : in std_logic_vector(ADDR_WIDTH-1 downto 0) ;
+        wbs_writedata : in std_logic_vector(DATA_WIDTH-1 downto 0);
+        wbs_readdata  : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        wbs_strobe    : in std_logic ;
+        wbs_cycle      : in std_logic ;
+        wbs_write     : in std_logic ;
+        wbs_ack       : out std_logic;
+
+        -- Wishbone master signals
+        wbm_address       : out array_of_addr((memory_map'length-1) downto 0) ;
+        wbm_writedata : out array_of_data((memory_map'length-1) downto 0);
+        wbm_readdata  : in array_of_data((memory_map'length-1) downto 0);
+        wbm_strobe    : out std_logic_vector((memory_map'length-1) downto 0) ;
+        wbm_cycle     : out std_logic_vector((memory_map'length-1) downto 0) ;
+        wbm_write     : out std_logic_vector((memory_map'length-1) downto 0) ;
+        wbm_ack       : in std_logic_vector((memory_map'length-1) downto 0)
+    );
+  end component;
+
 end dronefpga_components;
 
 package body dronefpga_components is

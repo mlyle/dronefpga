@@ -2,13 +2,14 @@
 #-- Project file /home/mlyle/trees/dronefpga/project/dronefpga/dronefpga_syn.prj
 #project files
 
-add_file -vhdl -lib work "../../hdl/dumbbone.vhd" 
 add_file -vhdl -lib work "../../hdl/spiwish.vhd" 
 add_file -vhdl -lib work "../../hdl/toplevel.vhd" 
 add_file -vhdl -lib work "../../hdl/wishsync.vhd" 
 add_file -vhdl -lib work "../../hdl/wishled.vhd" 
 add_file -vhdl -lib work "../../hdl/wordpulsegen.vhd" 
 add_file -vhdl -lib work "../../hdl/pulsegen.vhd" 
+add_file -vhdl -lib work "../../hdl/wishbone_intercon.vhd" 
+add_file -vhdl -lib work "../../hdl/dronefpga_components.vhd" 
 add_file -constraint -lib work "../../constraints/clk.sdc"
 #implementation: "dronefpga_Implmnt"
 impl -add dronefpga_Implmnt -type fpga

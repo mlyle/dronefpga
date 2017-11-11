@@ -21,6 +21,14 @@ architecture RTL of tinyfpga is
   signal clk                 : std_logic;
   signal rst                 : std_logic;
 
+  signal periph_addrs        : array_of_addr(0 downto 0);
+  signal periph_wdata        : array_of_data(0 downto 0);
+  signal periph_rdata        : array_of_data(0 downto 0);
+  signal periph_strobe       : std_logic_vector(0 downto 0);
+  signal periph_cycle        : std_logic_vector(0 downto 0);
+  signal periph_write        : std_logic_vector(0 downto 0);
+  signal periph_ack          : std_logic_vector(0 downto 0);
+
   signal miso, mosi, sck, ss : std_logic;
   signal outpwm : std_logic;
 
@@ -42,15 +50,41 @@ begin
     status_word   => "1100110011100101"
   );
 
+  intercon : wishbone_intercon
+  generic map (
+    memory_map => (
+                    0 => "0000000XXXXXXXXX" -- wish_2812led
+    )
+  )
+  port map (
+    gls_reset      => rst,
+    gls_clk        => clk,
+    wbs_address    => addr,
+    wbs_writedata  => wdata,
+    wbs_readdata   => rdata,
+    wbs_strobe     => strobe,
+    wbs_cycle      => cycle,
+    wbs_write      => write,
+    wbs_ack        => ack,
+
+    wbm_address    => periph_addrs,
+    wbm_writedata  => periph_wdata,
+    wbm_readdata   => periph_rdata,
+    wbm_strobe     => periph_strobe,
+    wbm_cycle      => periph_cycle,
+    wbm_write      => periph_write,
+    wbm_ack        => periph_ack
+  );
+
   slave : wish_2812led port map (
                               clk => clk,
                               rst => rst,
-                              wbs_address => addr(8 downto 0),
-                              wbs_writedata => wdata,
-                              wbs_readdata => rdata,
-                              wbs_write => write,
-                              wbs_strobe => strobe,
-                              wbs_ack => ack,
+                              wbs_address => periph_addrs(0)(8 downto 0),
+                              wbs_writedata => periph_wdata(0),
+                              wbs_readdata => periph_rdata(0),
+                              wbs_write => periph_write(0),
+                              wbs_strobe => periph_strobe(0),
+                              wbs_ack => periph_ack(0),
                               outpwm => outpwm
                             );
 

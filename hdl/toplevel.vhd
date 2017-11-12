@@ -4,6 +4,9 @@ use IEEE.numeric_std.all;
 use work.dronefpga_components.all;
 
 entity tinyfpga is
+  generic (
+    omit_pll : boolean := false
+  );
   port (
     pin1_usb_dp, pin2_usb_dn, pin4, pin5, pin6, pin7, pin8, pin9, pin10, pin11, pin12, pin13, pin14_sdo, pin15_sdi, pin16_sck, pin17_ss, pin18, pin19, pin20, pin21, pin22, pin23, pin24 : inout std_logic;
     pin3_clk_16mhz : in std_logic
@@ -96,7 +99,22 @@ begin
                               );
   end generate;
 
-  clk         <= pin3_clk_16mhz;
+  pll_cond: if not omit_pll generate
+    -- XXX PLL reset handling
+
+    tinyfpga_pll_inst: tinyfpga_pll
+    port map(
+              REFERENCECLK => pin3_clk_16mhz,
+              PLLOUTCORE => open,
+              PLLOUTGLOBAL => clk,
+              RESET => pin4
+            );
+  end generate;
+
+  invpll_cond: if omit_pll generate
+    clk         <= pin3_clk_16mhz;
+  end generate;
+
   rst         <= pin4;
   mosi        <= pin15_sdi;
   pin14_sdo   <= miso;

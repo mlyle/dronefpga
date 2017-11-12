@@ -7,6 +7,9 @@ end tb_toplevel;
 
 architecture behavior of tb_toplevel is
   component tinyfpga is
+    generic (
+      omit_pll : boolean := false
+    );
     port (
       pin1_usb_dp, pin2_usb_dn, pin4, pin5, pin6, pin7, pin8, pin9, pin10, pin11, pin12, pin13, pin14_sdo, pin15_sdi, pin16_sck, pin17_ss, pin18, pin19, pin20, pin21, pin22, pin23, pin24 : inout std_logic;
       pin3_clk_16mhz : in std_logic
@@ -29,7 +32,8 @@ architecture behavior of tb_toplevel is
 
 begin
    -- instantiate the unit under test (uut)
-  uut : tinyfpga port map (
+  uut : tinyfpga generic map ( omit_pll => true )
+                 port map (
                                   pin16_sck => sck,
                                   pin17_ss => ss,
                                   pin15_sdi => mosi,

@@ -159,6 +159,15 @@ package dronefpga_components is
     );
   end component;
 
+  component tinyfpga_pll is
+  port(
+        REFERENCECLK: in std_logic;
+        RESET: in std_logic;
+        PLLOUTCORE: out std_logic;
+        PLLOUTGLOBAL: out std_logic
+      );
+  end component tinyfpga_pll;
+
 end dronefpga_components;
 
 package body dronefpga_components is

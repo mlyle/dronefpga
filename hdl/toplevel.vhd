@@ -58,7 +58,8 @@ begin
                     1 => "0000001XXXXXXXXX", -- wish_2812led2
                     2 => "0000010XXXXXXXXX", -- wish_2812led3
                     3 => "0000011XXXXXXXXX"  -- wish_2812led4
-    )
+    ),
+    cycle_delay => true
   )
   port map (
     gls_reset      => rst,

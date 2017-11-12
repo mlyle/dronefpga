@@ -33,6 +33,7 @@ architecture RTL of wish_2812led is
 
   signal read_next_byte : std_logic;
   signal read_in_prog : std_logic;
+  signal did_bus_read : std_logic;
   signal next_byte : unsigned(8 downto 0);
   signal mem_raddr : unsigned(8 downto 0);
   signal mem_rdata : std_logic_vector(7 downto 0);
@@ -64,8 +65,10 @@ begin
           next_byte <= next_byte + 1;
         end if;
 
+        did_bus_read <= wbs_strobe and not read_next_byte;
+
         if word_req = '0' and wbs_strobe = '1' then
-          if wbs_write = '1' then
+          if do_wish_write = '1' then
             if (mem_waddr = 0) then
               num_bytes <= unsigned('0' & wbs_writedata) + unsigned('0' & wbs_writedata) + unsigned('0' & wbs_writedata);
             end if;
@@ -84,7 +87,7 @@ begin
 
   mem_waddr <= unsigned(wbs_address);
 
-  wbs_ack <= wbs_strobe and not word_req;
+  wbs_ack <= do_wish_write or (wbs_strobe and did_bus_read);
 
   read_next_byte <= '1' when (word_req = '1') and (read_in_prog = '0') else '0';
 

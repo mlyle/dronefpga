@@ -130,7 +130,10 @@ package dronefpga_components is
   function find_X(slv : std_logic_vector) return natural;
 
   component wishbone_intercon is
-    generic(memory_map : array_of_addr );
+    generic (
+             memory_map : array_of_addr;
+             cycle_delay : boolean
+            );
     port(
         -- Syscon signals
         gls_reset    : in std_logic ;

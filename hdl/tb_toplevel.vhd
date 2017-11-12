@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity tb_toplevel is
-  end tb_toplevel;
+end tb_toplevel;
 
 architecture behavior of tb_toplevel is
   component tinyfpga is
@@ -23,7 +23,7 @@ architecture behavior of tb_toplevel is
 
   -- define the period of clock here.
   constant SPI_PERIOD : time := 100 ns; -- 10MHz
-  constant CLK_PERIOD : time := 16 ns;  -- 60MHz
+  constant CLK_PERIOD : time := 16.67 ns;  -- 60MHz
 
   shared variable ENDSIM : boolean := false;
 
@@ -80,7 +80,24 @@ begin
     wait for SPI_PERIOD*2; --wait for 2 clock cycles.
     ss <= '0';
 
-    wait for SPI_PERIOD*32; --wait for 32 clock cycles.
+    -- select address 1 for transaction, no auto increment, writing.
+    wait for SPI_PERIOD*13;
+
+    mosi <= '1';
+
+    wait for SPI_PERIOD;
+
+    mosi <= '0';
+
+    wait for SPI_PERIOD;
+
+    mosi <= '1';
+
+    wait for SPI_PERIOD;
+
+    mosi <= '0';
+
+    wait for SPI_PERIOD*24; --wait for 24 clock cycles. (3 transactions)
 
     ss <= '1';
 

@@ -27,5 +27,9 @@ vendorlib:
 	mkdir -p "$(VENDORLIBDIR)"
 	ghdl -a -fexplicit --ieee=synopsys --work=ice --workdir="$(VENDORLIBDIR)" $(VENDOR)
 
+program:
+	tinyfpgab -p project/dronefpga/dronefpga_Implmnt/sbt/outputs/bitmap/tinyfpga_bitmap.bin
+	tinyfpgab -b
+
 .PHONY: sim view clean
 

@@ -10,4 +10,5 @@
 
 ####---- CreateClock list ----1
 create_clock  -period 62.50 -name {pin3_clk_16mhz} [get_ports {pin3_clk_16mhz}] 
+create_clock  -period 62.50 -name {pin16_sck} [get_ports {pin16_sck}] 
 

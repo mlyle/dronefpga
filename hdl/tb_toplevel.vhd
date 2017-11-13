@@ -25,8 +25,8 @@ architecture behavior of tb_toplevel is
   signal outpwm : std_logic;
 
   -- define the period of clock here.
-  constant SPI_PERIOD : time := 100 ns; -- 10MHz
-  constant CLK_PERIOD : time := 16.67 ns;  -- 60MHz
+  constant SPI_PERIOD : time := 62.5 ns;   -- 16MHz
+  constant CLK_PERIOD : time := 10.51 ns;   -- ~95.1MHz
 
   shared variable ENDSIM : boolean := false;
 

@@ -57,7 +57,7 @@ tinyfpga_pll_inst: SB_PLL40_CORE
 generic map(
              DIVR => "0000",
              DIVF => "0101111",
-             DIVQ => "010",
+             DIVQ => "011",
              FILTER_RANGE => "001",
              FEEDBACK_PATH => "SIMPLE",
              DELAY_ADJUSTMENT_MODE_FEEDBACK => "FIXED",
@@ -84,6 +84,13 @@ port map(
         );
 
 end BEHAVIOR;
+
+-- The IceCube generator FAILED at doing this properly.
+-- It selected (16000000 * (47+1)) / (2^2) = 192MHz
+-- We choose (16000000 * (47+1)) / (2^3) = 96MHz like desired.  This means
+-- Q = 011 instead of their 010
+-- FILTER_RANGE is undocumented, etc, so we have to assume they did the right
+-- things for that :/
 
 --uiPll40ModuleData
 --PllType: SB_PLL40_CORE

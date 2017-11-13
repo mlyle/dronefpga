@@ -6,7 +6,8 @@ port(
       REFERENCECLK: in std_logic;
       RESET: in std_logic;
       PLLOUTCORE: out std_logic;
-      PLLOUTGLOBAL: out std_logic
+      PLLOUTGLOBAL: out std_logic;
+      LOCK: out std_logic
     );
 end entity tinyfpga_pll;
 
@@ -77,7 +78,7 @@ port map(
           RESETB => RESET,
           BYPASS => '0',
           LATCHINPUTVALUE => open,
-          LOCK => open,
+          LOCK => LOCK,
           SDI => open,
           SDO => open,
           SCLK => open

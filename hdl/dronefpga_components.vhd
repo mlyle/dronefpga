@@ -159,15 +159,31 @@ package dronefpga_components is
     );
   end component;
 
+  component reset_generator is
+    generic (
+      width           : integer
+    );
+
+    port (
+      clk : in std_logic;
+
+      -- active high async reset input
+      reset_in         : in std_logic;
+
+      -- active high reset output, sync to clock
+      rst              : out std_logic
+    );
+  end component;
+
   component tinyfpga_pll is
   port(
         REFERENCECLK: in std_logic;
         RESET: in std_logic;
         PLLOUTCORE: out std_logic;
-        PLLOUTGLOBAL: out std_logic
+        PLLOUTGLOBAL: out std_logic;
+        LOCK: out std_logic
       );
   end component tinyfpga_pll;
-
 end dronefpga_components;
 
 package body dronefpga_components is

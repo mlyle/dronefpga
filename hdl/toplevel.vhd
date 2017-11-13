@@ -24,6 +24,7 @@ architecture RTL of tinyfpga is
   signal cycle               : std_logic;
   signal clk                 : std_logic;
   signal rst                 : std_logic;
+  signal lock                : std_logic;
 
   signal periph_addrs        : array_of_addr(max_periphidx downto 0);
   signal periph_wdata        : array_of_data(max_periphidx downto 0);
@@ -36,6 +37,7 @@ architecture RTL of tinyfpga is
   signal miso, mosi, sck, ss : std_logic;
   signal outpwm              : std_logic_vector(max_periphidx downto 0);
 
+  signal bad_things          : std_logic;
 begin
   bridge : spi_wishmaster
   port map(
@@ -100,22 +102,31 @@ begin
   end generate;
 
   pll_cond: if not omit_pll generate
-    -- XXX PLL reset handling
-
     tinyfpga_pll_inst: tinyfpga_pll
     port map(
               REFERENCECLK => pin3_clk_16mhz,
               PLLOUTCORE => open,
               PLLOUTGLOBAL => clk,
-              RESET => pin4
+              RESET => '1',
+              LOCK => lock
             );
   end generate;
 
   invpll_cond: if omit_pll generate
     clk         <= pin3_clk_16mhz;
+    lock        <= '1';
   end generate;
 
-  rst         <= pin4;
+  bad_things <= not lock;
+
+  resetgen: reset_generator
+    generic map ( width => 7 )
+    port map (
+            clk      => clk,
+            reset_in => bad_things,
+            rst      => rst
+    );
+  
   mosi        <= pin15_sdi;
   pin14_sdo   <= miso;
   sck         <= pin16_sck;

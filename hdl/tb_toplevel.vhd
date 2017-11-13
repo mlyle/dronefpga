@@ -71,13 +71,7 @@ begin
   -- Stimulus process, Apply inputs here.
   stim_proc: process
   begin
-    wait for CLK_PERIOD*5;
-
-    rst <= '1';
-
-    wait for CLK_PERIOD*5;
-
-    rst <= '0';
+    wait for CLK_PERIOD*500;
 
     wait until sck='0';
 

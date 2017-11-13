@@ -10,7 +10,7 @@ view: sim
 clean:
 	rm -rf work tb_spiwish tb_spiwish.vcd "e~tb_spiwish.o" "$(VENDORLIBDIR)"
 
-VENDOR=vendor/vcomponent_vital.vhd vendor/sb_ice_syn_vital.vhd vendor/sb_ice_lc_vital.vhd
+VENDOR=vendor/hacks.vhd vendor/vcomponent_vital.vhd vendor/sb_ice_syn_vital.vhd vendor/sb_ice_lc_vital.vhd
 VENDORLIBDIR=ice
 
 sim_routed:

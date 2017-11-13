@@ -1,0 +1,79 @@
+[*]
+[*] GTKWave Analyzer v3.3.82 (w)1999-2017 BSI
+[*] Sun Nov 12 21:45:00 2017
+[*]
+[dumpfile] "/home/mlyle/trees/dronefpga/tb_spiwish.vcd"
+[dumpfile_mtime] "Sun Nov 12 18:32:50 2017"
+[dumpfile_size] 1083765
+[savefile] "/home/mlyle/trees/dronefpga/meh.gtkw"
+[timestart] 9029200000
+[size] 1920 1018
+[pos] -51 -51
+*-25.000000 -1 9093750000 9117425000 9148955000 9159465000 9218750000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] uut.
+[treeopen] uut.bridge.
+[treeopen] uut.slaves(2).
+[treeopen] uut.slaves(2).slave.
+[sst_width] 269
+[signals_width] 240
+[sst_expanded] 1
+[sst_vpaned_height] 286
+@200
+-SPI
+@28
+[color] 3
+uut.bridge.sck
+uut.miso
+uut.mosi
+uut.bridge.bit_count[2:0]
+@200
+-Async Bus
+@22
+uut.bridge.awb_address[15:0]
+uut.bridge.awb_readdata[7:0]
+uut.bridge.awb_writedata[7:0]
+@28
+uut.bridge.awb_strobe
+uut.bridge.awb_write
+@200
+-Wishbone Top Master
+@28
+[color] 3
+uut.bridge.clk
+uut.bridge.async_wb.wbm_strobe
+uut.bridge.async_wb.wbm_cycle
+uut.bridge.async_wb.wbm_ack
+@22
+uut.bridge.async_wb.wbm_address[15:0]
+uut.bridge.async_wb.wbm_readdata[7:0]
+@200
+-Slave (Post Intercon)
+@28
+uut.slaves(2).slave.wbs_strobe
+uut.slaves(2).slave.wbs_ack
+@22
+uut.slaves(2).slave.wbs_address[8:0]
+uut.slaves(2).slave.wbs_readdata[7:0]
+uut.slaves(2).slave.wbs_writedata[7:0]
+@200
+-Blockram Registers
+@22
+uut.slaves(2).slave.mem_raddr[8:0]
+uut.slaves(2).slave.mem_rdata[7:0]
+uut.slaves(2).slave.mem_waddr[8:0]
+@28
+uut.slaves(2).slave.read_next_byte
+@200
+-PWMUartTx
+@28
+uut.slaves(2).slave.pulse_generator.word_req
+uut.slaves(2).slave.word_strobe
+@22
+uut.slaves(2).slave.pulse_generator.remaining_width[5:0]
+uut.slaves(2).slave.pulse_generator.remaining_word[7:0]
+@28
+uut.slaves(2).slave.pulse_generator.duration_req
+@29
+uut.slaves(2).slave.pulse_generator.duration_strobe
+[pattern_trace] 1
+[pattern_trace] 0

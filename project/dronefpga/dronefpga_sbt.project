@@ -4,7 +4,7 @@ Version=Lattice Semiconductor Corporation iCEcube - Release: 2017.01.27914 - Bui
 ProjectName=dronefpga
 Vendor=SiliconBlue
 Synthesis=synplify
-ProjectVFiles=../../hdl/spiwish.vhd=work,../../hdl/toplevel.vhd=work,../../hdl/wishsync.vhd=work,../../hdl/wishled.vhd=work,../../hdl/wordpulsegen.vhd=work,../../hdl/pulsegen.vhd=work,../../hdl/wishbone_intercon.vhd=work,../../hdl/dronefpga_components.vhd=work
+ProjectVFiles=../../hdl/spiwish.vhd=work,../../hdl/toplevel.vhd=work,../../hdl/wishsync.vhd=work,../../hdl/wishled.vhd=work,../../hdl/wordpulsegen.vhd=work,../../hdl/pulsegen.vhd=work,../../hdl/wishbone_intercon.vhd=work,../../hdl/dronefpga_components.vhd=work,../../hdl/tinyfpga_pll.vhd
 ProjectCFiles=../../constraints/clk.sdc
 CurImplementation=dronefpga_Implmnt
 Implementations=dronefpga_Implmnt
@@ -20,7 +20,7 @@ NetlistFile=dronefpga_Implmnt/dronefpga.edf
 AdditionalEDIFFile=
 IPEDIFFile=
 DesignLib=dronefpga_Implmnt/sbt/netlist/oadb-tinyfpga
-DesignView=_ep
+DesignView=_rt
 DesignCell=tinyfpga
 SynthesisSDCFile=dronefpga_Implmnt/dronefpga.scf
 UserPinConstraintFile=

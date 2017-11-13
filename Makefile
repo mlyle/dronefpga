@@ -5,7 +5,7 @@ sim:
 	ghdl -r tb_toplevel --vcd=tb_spiwish.vcd --disp-tree
 
 view: sim
-	gtkwave -z tb_spiwish.vcd
+	gtkwave -z tb_spiwish.vcd bus_transaction.gtkw
 
 clean:
 	rm -rf work tb_spiwish tb_spiwish.vcd "e~tb_spiwish.o" "$(VENDORLIBDIR)"

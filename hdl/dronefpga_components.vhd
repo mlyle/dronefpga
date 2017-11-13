@@ -6,6 +6,7 @@ package dronefpga_components is
     port (
       -- Overall system clock
       clk : in std_logic;
+      rst : in std_logic;
 
       -- Pseudo-wishbone async slave signals
       wbs_address   : in std_logic_vector(15 downto 0);
@@ -104,6 +105,7 @@ package dronefpga_components is
 
     -- Global Signals
     clk            : in std_logic;
+    rst            : in std_logic;
 
     -- Wishbone interface signals
     wbm_address    : out std_logic_vector(15 downto 0);

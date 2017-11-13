@@ -22,6 +22,7 @@ entity wish_syncer is
   port (
     -- Overall system clock
     clk : in std_logic;
+    rst : in std_logic;
 
     -- Pseudo-wishbone async slave signals
     wbs_address   : in std_logic_vector(15 downto 0);
@@ -76,6 +77,14 @@ begin
         wbs_readdata <= wbm_readdata;
       end if;
 
+      if rst = '1' then
+        wbm_strobe    <= '0';
+        wbm_cycle     <= '0';
+        writing       <= '0';
+        wbm_writedata <= (others => '0');
+        wbm_address   <= (others => '0');
+        wbs_readdata  <= (others => '0');
+      end if;
     end if;
   end process;
 

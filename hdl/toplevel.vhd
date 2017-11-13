@@ -46,6 +46,7 @@ begin
     mosi          => mosi,
     miso          => miso,
     clk           => clk,
+    rst           => rst,
     wbm_address   => addr,
     wbm_readdata  => rdata,
     wbm_writedata => wdata,

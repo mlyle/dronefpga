@@ -71,7 +71,14 @@ begin
         else
           cs_vector(i) <= '0';
         end if;
+
+        wbm_writedata(i) <= wbs_writedata ;
+        wbm_write(i) <= wbs_write;
       end loop;
+
+      if (gls_reset = '1') then
+        cs_vector <= (others => '0');
+      end if;
     end if;
 end process;
 end generate proc_gcs_clk_generate;
@@ -81,6 +88,8 @@ gen_slaves : for i in 0 to (memory_map'length-1) generate
   csgen: if not cycle_delay generate
     cs_vector(i) <= wbs_strobe when wbs_address(wbs_address'length-1 downto find_X(memory_map(i))) = memory_map(i)(wbs_address'length-1 downto find_X(memory_map(i))) else
                     '0' ;
+    wbm_writedata(i) <= wbs_writedata ;
+    wbm_write(i) <= wbs_write;
   end generate csgen;
 
   ack_vector(i) <= wbm_ack(i) and cs_vector(i);
@@ -88,8 +97,6 @@ gen_slaves : for i in 0 to (memory_map'length-1) generate
   wbm_address(i)(wbs_address'length-1 downto find_X(memory_map(i))) <= (others => '0') ;
   wbm_address(i)(find_X(memory_map(i))-1 downto 0) <= wbs_address(find_X(memory_map(i))-1 downto 0) ;
 
-  wbm_writedata(i) <= wbs_writedata ;
-  wbm_write(i) <= wbs_write;
   wbm_strobe(i) <= cs_vector(i);
   wbm_cycle(i) <= wbs_cycle;
 

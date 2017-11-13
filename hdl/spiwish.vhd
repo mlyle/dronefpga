@@ -25,6 +25,7 @@ entity spi_wishmaster is
     mosi, ss, sck : in std_logic;
     miso          : out std_logic;
 
+    rst           : in std_logic;
     clk           : in std_logic;
 
     -- Wishbone interface signals
@@ -166,6 +167,7 @@ begin
   async_wb : wish_syncer
   port map(
     clk           => clk,
+    rst           => rst,
     wbs_address   => awb_address,
     wbs_writedata => awb_writedata,
     wbs_readdata  => awb_readdata,

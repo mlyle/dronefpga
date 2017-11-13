@@ -46,33 +46,38 @@ end entity;
 architecture RTL of pulsegen is
   signal counter : unsigned(timer_width-1 downto 0);
   signal top_of_count : std_logic;
+  signal threshold : unsigned(timer_width-1 downto 0);
+  signal thresholdb : unsigned(timer_width-1 downto 0);
 begin
   process (clk)
   begin
     if clk'EVENT and clk = '1' then
-      if rst = '1' then
-        counter <= (others => '1');
-      else
-        if top_of_count = '1' then
-          if duration_strobe = '1' then
-            counter <= (others => '0');
-          end if;
-        else
-          counter <= counter + 1;
-        end if;
-      end if;
-
-      if counter < unsigned(active_duration) then
+      if counter < unsigned(threshold) then
         outpwm <= active_output;
       else
         outpwm <= inactive_output;
       end if;
 
-      if counter < unsigned(activeb_duration) then
+      if counter < unsigned(thresholdb) then
         outpwmb <= active_output;
       else
         outpwmb <= inactive_output;
       end if;
+
+      if top_of_count = '0' then
+        counter <= counter + 1;
+      end if;
+
+      if rst = '1' then
+        counter <= (others => '1');
+      else
+        if duration_strobe = '1' then
+          counter <= (others => '0');
+          threshold <= unsigned(active_duration);
+          thresholdb <= unsigned(activeb_duration);
+        end if;
+      end if;
+
     end if;
   end process;
 

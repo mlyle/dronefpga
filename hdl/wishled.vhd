@@ -33,7 +33,7 @@ architecture RTL of wish_2812led is
 
   signal read_next_byte : std_logic;
   signal read_in_prog : std_logic;
-  signal did_bus_read : std_logic;
+  signal did_bus_op : std_logic;
   signal next_byte : unsigned(8 downto 0);
   signal mem_raddr : unsigned(8 downto 0);
   signal mem_rdata : std_logic_vector(7 downto 0);
@@ -48,6 +48,25 @@ begin
   process (clk)
   begin
     if clk'EVENT and clk = '1' then
+      read_in_prog <= read_next_byte;
+
+      if read_in_prog = '1' then
+        next_byte <= next_byte + 1;
+      end if;
+
+      did_bus_op <= not read_next_byte and not wbs_write;
+
+      if word_req = '0' and wbs_strobe = '1' then
+        if do_wish_write = '1' then
+          if (mem_waddr = 0) then
+            num_bytes <= unsigned('0' & wbs_writedata) + unsigned('0' & wbs_writedata) + unsigned('0' & wbs_writedata);
+          end if;
+
+        end if;
+      end if;
+
+      mem_rdata <= mem(to_integer(mem_raddr));
+
       if rst = '1' then
         num_bytes <= (others => '0');
         next_byte <= (others => '0');
@@ -58,28 +77,8 @@ begin
           mem(i) <= std_logic_vector(to_unsigned(i, 8));
         end loop;
         -- synopsys translate_on
-      else
-        read_in_prog <= read_next_byte;
-
-        if read_in_prog = '1' then
-          next_byte <= next_byte + 1;
-        end if;
-
-        did_bus_read <= wbs_strobe and not read_next_byte;
-
-        if word_req = '0' and wbs_strobe = '1' then
-          if do_wish_write = '1' then
-            if (mem_waddr = 0) then
-              num_bytes <= unsigned('0' & wbs_writedata) + unsigned('0' & wbs_writedata) + unsigned('0' & wbs_writedata);
-            end if;
-
-          end if;
-        end if;
-      end if;
-
-      mem_rdata <= mem(to_integer(mem_raddr));
-
-      if do_wish_write = '1' then
+      elsif do_wish_write = '1' then
+        did_bus_op <= '1';
         mem(to_integer(mem_waddr)) <= wbs_writedata;
       end if;
     end if;
@@ -87,7 +86,7 @@ begin
 
   mem_waddr <= unsigned(wbs_address);
 
-  wbs_ack <= do_wish_write or (wbs_strobe and did_bus_read);
+  wbs_ack <= (wbs_strobe and did_bus_op);
 
   read_next_byte <= '1' when (word_req = '1') and (read_in_prog = '0') else '0';
 

@@ -57,6 +57,7 @@ architecture RTL of wordpulsegen is
   signal remaining_width : unsigned(5 downto 0);
   signal remaining_word  : std_logic_vector(max_word_width-1 downto 0);
   signal remaining_wordb : std_logic_vector(max_word_width-1 downto 0);
+  signal ok_dur_strobe : std_logic;
 
   signal bit_duration : std_logic_vector(timer_width-1 downto 0);
   signal bitb_duration : std_logic_vector(timer_width-1 downto 0);
@@ -66,31 +67,33 @@ begin
     if clk'EVENT and clk = '1' then
       if rst = '1' then
         remaining_width <= (others => '0');
-        duration_strobe <= '0';
         word_req <= '0';
+        ok_dur_strobe <= '0';
       else
         if word_strobe = '1' then
           remaining_width <= unsigned(word_width);
           remaining_word  <= word_value;
           remaining_wordb <= wordb_value;
-          duration_strobe <= '0';
           word_req <= '0';
-        elsif duration_req = '1' and duration_strobe = '0' and remaining_width > 0 then
+          ok_dur_strobe <= '0';
+        elsif duration_strobe = '1' then
           remaining_width <= remaining_width - 1;
           remaining_word  <= remaining_word(max_word_width-2 downto 0) & '0';
           remaining_wordb <= remaining_word(max_word_width-2 downto 0) & '0';
-          duration_strobe <= '1';
           word_req <= '0';
+          ok_dur_strobe <= '0';
         elsif remaining_width = 0 then
-          duration_strobe <= '0';
           word_req <= '1';
+          ok_dur_strobe <= '0';
         else
-          duration_strobe <= '0';
           word_req <= '0';
+          ok_dur_strobe <= '1';
         end if;
       end if;
     end if;
   end process;
+
+  duration_strobe <= '1' when (duration_req = '1') and (ok_dur_strobe = '1') else '0';
 
   bit_duration <= one_duration when remaining_word(max_word_width-1) = '1'
                   else zero_duration;

@@ -37,30 +37,28 @@ end entity;
 
 -- ----------------------------------------------------------------------------
 architecture RTL of reset_generator is
-  signal count_val       : unsigned(width-1 downto 0) := (others => '0');
+  signal count_val       : unsigned(width downto 0) := (others => '0');
   signal reset_in_sync : std_logic_vector(3 downto 0) := (others => '1');
-
-  constant maxcount    : unsigned(width-1 downto 0) := (others => '1');
 begin
   process (clk, reset_in)
   begin
-    if reset_in = '1' then
-      reset_in_sync <= (others => '1');
-      rst <= '1';
-    elsif clk'EVENT and clk = '1' then
-      reset_in_sync <= reset_in_sync(2 downto 0) & reset_in;
-    end if;
-
     if clk'EVENT and clk = '1' then
+      reset_in_sync <= reset_in_sync(2 downto 0) & reset_in;
+
       if reset_in_sync(3) = '1' then
         count_val <= (others => '0');
         rst <= '1';
-      elsif count_val < maxcount then
+      elsif count_val(width) = '0' then
         count_val <= count_val + 1;
         rst <= '1';
       else
         rst <= '0';
       end if;
+    end if;
+
+    if reset_in = '1' then
+      reset_in_sync <= (others => '1');
+      rst <= '1';
     end if;
   end process;
 end architecture RTL;

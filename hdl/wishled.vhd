@@ -48,6 +48,8 @@ begin
   process (clk)
   begin
     if clk'EVENT and clk = '1' then
+      assert (do_wish_write /= '1') or (mem_waddr /= mem_raddr) report "Address collision" severity error;
+
       read_in_prog <= read_next_byte;
 
       if read_in_prog = '1' then
@@ -84,14 +86,16 @@ begin
     end if;
   end process;
 
-  mem_waddr <= unsigned(wbs_address);
-
   wbs_ack <= (wbs_strobe and did_bus_op);
 
   read_next_byte <= '1' when (word_req = '1') and (read_in_prog = '0') else '0';
 
   do_wish_write <= '1' when ((wbs_strobe = '1') and (wbs_write = '1') and (read_next_byte = '0') and (rst = '0')) else '0';
-  mem_raddr <= next_byte when read_next_byte = '1' else unsigned(wbs_address);
+
+  mem_waddr <= unsigned(wbs_address) when do_wish_write = '1' else (others => '0');
+
+  mem_raddr <= next_byte when read_next_byte = '1' else unsigned(wbs_address) when (wbs_write = '0' and wbs_strobe = '1') else (others => '0');
+
   wbs_readdata <= mem_rdata;
   to_clock_out <= mem_rdata;
 
